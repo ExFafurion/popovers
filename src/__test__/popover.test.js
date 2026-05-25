@@ -1,35 +1,37 @@
-const puppeteer = require('puppeteer');
-let browser;
-let page;
+import Popover from '../Popover';
 
-beforeAll(async () => {
-  browser = await puppeteer.launch();
-  page = await browser.newPage();
-  await page.goto('http://localhost:8080');
-});
+describe('Popover', () => {
+  let button;
+  let popoverInstance;
 
-afterAll(async () => {
-  await browser.close();
-});
+  beforeEach(() => {
+    document.body.innerHTML = '<button id="testBtn">Click</button>';
+    button = document.getElementById('testBtn');
+    popoverInstance = new Popover(button, {
+      title: 'Test Title',
+      content: 'Test Content'
+    });
+  });
 
-test('popover appears on button click and disappears on second click', async () => {
-  // Проверяем, что изначально popover нет
-  let popover = await page.$('.popover');
-  expect(popover).toBeNull();
+  afterEach(() => {
+    if (popoverInstance.popoverElement) {
+      popoverInstance.popoverElement.remove();
+    }
+    document.body.innerHTML = '';
+  });
 
-  // Кликаем по кнопке
-  await page.click('#popoverBtn');
-  await page.waitForSelector('.popover', { timeout: 1000 });
-  popover = await page.$('.popover');
-  expect(popover).not.toBeNull();
+  test('should show popover on first click', () => {
+    button.click();
+    const popoverDiv = document.querySelector('.popover');
+    expect(popoverDiv).not.toBeNull();
+    expect(popoverDiv.querySelector('.popover-header').textContent).toBe('Test Title');
+    expect(popoverDiv.querySelector('.popover-body').textContent).toBe('Test Content');
+  });
 
-  // заголовок
-  const header = await page.$eval('.popover-header', el => el.textContent);
-  expect(header).toContain('Popover title');
-
-  // Второй клик
-  await page.click('#popoverBtn');
-  await page.waitForTimeout(300);
-  popover = await page.$('.popover');
-  expect(popover).toBeNull();
+  test('should hide popover on second click', () => {
+    button.click();
+    button.click();
+    const popoverDiv = document.querySelector('.popover');
+    expect(popoverDiv).toBeNull();
+  });
 });
