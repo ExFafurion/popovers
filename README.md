@@ -1,6 +1,6 @@
 # Popover Widget
 
-[![Build and Deploy](https://github.com/ExFafurion/popovers/actions/workflows/ci.yml/badge.svg)](https://github.com/ExFafurion/popovers/actions/workflows/ci.yml)
+[![CI status](https://github.com/ExFafurion/popovers/actions/workflows/ci.yml/badge.svg)](https://github.com/ExFafurion/popovers/actions/workflows/ci.yml)
 
 ## GitHub Pages
 
