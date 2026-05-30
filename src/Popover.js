@@ -1,85 +1,56 @@
-export default class Popover {
-  constructor(triggerElement, options = {}) {
-    this.trigger = triggerElement;
-    this.title = options.title || 'Popover title';
-    this.content = options.content || 'And here’s some amazing content. It’s very engaging. Right?';
-    this.visible = false;
-    this.popoverElement = null;
-    this.init();
-  }
-
-  init() {
-    this.trigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.toggle();
-    });
-  }
-
-  toggle() {
-    if (this.visible) {
-      this.hide();
-    } else {
-      this.show();
-    }
-  }
-
-  show() {
-    if (this.visible) return;
-    this.createPopover();
-    this.positionPopover();
-    this.visible = true;
-  }
-
-  hide() {
-    if (!this.visible || !this.popoverElement) return;
-    this.popoverElement.remove();
-    this.popoverElement = null;
-    this.visible = false;
-  }
-
-  createPopover() {
-    const div = document.createElement('div');
-    div.className = 'popover';
-    div.innerHTML = `
-      <div class="popover-arrow"></div>
-      <h3 class="popover-header">${this.escapeHtml(this.title)}</h3>
-      <div class="popover-body">${this.escapeHtml(this.content)}</div>
-    `;
-    document.body.appendChild(div);
-    this.popoverElement = div;
-  }
-
-  positionPopover() {
-    const triggerRect = this.trigger.getBoundingClientRect();
-    const popoverRect = this.popoverElement.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-
-    let top = triggerRect.top + scrollTop - popoverRect.height - 8;
-    let left = triggerRect.left + scrollLeft + (triggerRect.width / 2) - (popoverRect.width / 2);
-
-    // Если сверху не влезает — показываем снизу
-    if (top < scrollTop) {
-      top = triggerRect.bottom + scrollTop + 8;
-    }
-    // Корректировка по горизонтали, чтобы не вылезало за экран
-    if (left < scrollLeft) {
-      left = scrollLeft + 5;
-    }
-    if (left + popoverRect.width > window.innerWidth + scrollLeft) {
-      left = window.innerWidth + scrollLeft - popoverRect.width - 5;
+export class Popover {
+    constructor(element) {
+        this.element = element;
+        this.popover = null;
+        this.init();
     }
 
-    this.popoverElement.style.top = `${top}px`;
-    this.popoverElement.style.left = `${left}px`;
-  }
+    init() {
+        this.element.addEventListener('click', () => this.toggle());
+    }
 
-  escapeHtml(str) {
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
-  }
+    toggle() {
+        if (this.popover) {
+            this.remove();
+        } else {
+            this.create();
+        }
+    }
+
+    create() {
+        const title = this.element.getAttribute('data-title') || 'Без заголовка';
+        const content = this.element.getAttribute('data-content') || 'Нет контента';
+
+        this.popover = document.createElement('div');
+        this.popover.className = 'popover';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'popover-title';
+        titleEl.textContent = title;
+
+        const contentEl = document.createElement('div');
+        contentEl.className = 'popover-content';
+        contentEl.textContent = content;
+
+        const arrow = document.createElement('div');
+        arrow.className = 'popover-arrow';
+
+        this.popover.append(titleEl, contentEl, arrow);
+
+        const btnRect = this.element.getBoundingClientRect();
+        const popRect = this.popover.getBoundingClientRect();
+
+        const top = btnRect.top - popRect.height - 10;
+        const left = btnRect.left + (btnRect.width / 2) - (popRect.width / 2);
+
+        this.popover.style.top = `${top + window.scrollY}px`;
+        this.popover.style.left = `${left + window.scrollX}px`;
+
+        document.body.append(this.popover);
+    }
+
+    remove() {
+        this.popover.remove();
+        this.popover = null;
+    }
 }

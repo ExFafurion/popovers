@@ -1,10 +1,6 @@
-import './styles.css';
-import Popover from './Popover';
+import { Popover } from './Popover';
 
-const button = document.getElementById('popoverBtn');
-if (button) {
-  new Popover(button, {
-    title: 'Popover title',
-    content: 'And here’s some amazing content. It’s very engaging. Right?'
-  });
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.popover-btn');
+    buttons.forEach(btn => new Popover(btn));
+});
